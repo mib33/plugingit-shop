@@ -173,8 +173,8 @@ div#booster-close-notification{
   text-align:center;
 }
 .ba-product-bundle .ba-image {
-  min-height: 125px;
-  max-height: 125px;
+  min-height: 130px;
+  max-height: 130px;
   line-height: 125px;
   border: 1px solid #d9d9d9;
   background: #fff;
@@ -872,7 +872,7 @@ div#booster-close-notification{
 }
 
 .dp-popup-dpModal div.no-thanks a{
-  color: #aaaaaa;
+  color: #aaa;
   font-size: 100%;
 }
 
@@ -1074,11 +1074,11 @@ div#booster-close-notification{
 }
 
 .dp-popup-dpModal button.add-upsells{
-  color: #ffffff;
+  color: #fff;;
   font-size: 100%;
   font-size: 14px;
 
-  background-color: #a1c65b;
+  background-color: #a1c65b;;
   display: inline-block;
   padding: 8px 12px;
   margin-bottom: 0;
@@ -1194,6 +1194,10 @@ div#booster-close-notification{
 
 }
 
+.ba-bundle-wrapper .booster-variants-container select.ba-variants{
+  display:block;
+}
+
 .ba-bundle-wrapper .ba-product-bundle button.add-booster-bundle{
   cursor: pointer;
   background-color: #a1c65b;
@@ -1236,6 +1240,7 @@ div#booster-close-notification{
 {
 
 }
+
 </style>
 
 
@@ -1297,7 +1302,7 @@ div#booster-close-notification{
 
   
     {% raw %}
-      window.booster.money_format = "€{{amount_with_comma_separator}}";
+      window.booster.money_format = "руб{{amount_with_comma_separator}}";
     {% endraw %}
   
 
@@ -1515,7 +1520,7 @@ function reqJquery(onload) {
 
 reqJquery(function($){
   var settings = {app_root_url: '/apps/discounted_pricing',
-                  app_name:     'bundle',
+                  app_name:     'buyx',
                   shop_domain:  ''};
 
   if (document.location.href.indexOf("checkouts") < 0){
@@ -2173,7 +2178,7 @@ reqJquery(function($){
     if (discounts.positive_discount) { displayCartTotals(discounts)}
 
     //WIP for zero discounts
-    if (discounts.zero_discount_only){
+    if (discounts.zero_discount_only || window.booster.cart.total_price == 0){
       $('form[action*="/cart"]').append("<input type='hidden' value='1' name='attributes[ba_identifier]'>");
       return
     }
@@ -2224,6 +2229,8 @@ reqJquery(function($){
       $(".wh-cart-total").prepend("<span class='booster-messages'><div id='booster-discount-item'></div><div id='booster-summary-item'>" + boosterSummaryItemHtml + "</div></span>");
       
       $(".wh-cart-total span").css("text-decoration", "none");
+
+      
   }
 
   function showBoosterNotification(notifications){
@@ -2506,12 +2513,17 @@ reqJquery(function($){
     if (typeof ga == "function"){ga(function(tracker) {window.gaclientId = tracker.get("clientId")})}
   }, 1000);
 
-  $(document).on('change', "input.booster-quantity, input[name^='updates['], input[id^='updates_'], input[id^='Updates_'], td.cart-qty span.icon-plus, td.cart-qty span.icon-minus", function(e) {
+  $(document).on('change', "input.booster-quantity, input[name^='updates['], input[id^='updates_'], input[id^='Updates_']", function(e) {
     e.preventDefault();
     $(this).parents('form[action*="/cart"]').submit();
   });
 
   if(window.booster.ba_page == 'cart'){
+
+    $(document).on('click', "td.cart-qty span.icon-plus, td.cart-qty span.icon-minus", function(e) {
+      e.preventDefault();
+      $(this).parents('form[action*="/cart"]').submit();
+    });
 
     $(document).ajaxSuccess(function(evt,xhr,attrs) {
       if (attrs.url == '/cart/change.js'){
@@ -2622,7 +2634,7 @@ reqJquery(function($){
     var script = document.createElement('script');
     
     window.selector_mode = true;
-    script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'booster-bundle.herokuapp.com/selector.js?v=1';
+    script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'buyx.herokuapp.com/selector.js?v=1';
     script.type = 'text/javascript';
     head.appendChild(script);
   }
