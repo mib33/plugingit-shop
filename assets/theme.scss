@@ -428,11 +428,11 @@ $accentFontWeight: 400;
 
 @font-face {
   font-family: 'icons';
-  src: url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.eot?7352985754982877031');
-  src: url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.eot?7352985754982877031#iefix') format("embedded-opentype"),
-       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.woff?7352985754982877031') format("woff"),
-       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.ttf?7352985754982877031') format("truetype"),
-       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.svg?7352985754982877031#timber-icons') format("svg");
+  src: url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.eot?7484528355087352049');
+  src: url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.eot?7484528355087352049#iefix') format("embedded-opentype"),
+       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.woff?7484528355087352049') format("woff"),
+       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.ttf?7484528355087352049') format("truetype"),
+       url('//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/icons.svg?7484528355087352049#timber-icons') format("svg");
   font-weight: normal;
   font-style: normal;
 };
@@ -2314,7 +2314,7 @@ $slick-opacity-not-active: 0.25;
 
 // Only called once so make sure proper file is grabbed
 @function slick-image-url($url) {
-  @return url(//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/ajax-loader.gif?7352985754982877031);
+  @return url(//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/ajax-loader.gif?7484528355087352049);
 }
 
 // Unused intentionally
@@ -3888,7 +3888,7 @@ button.mfp-arrow {
   width: 100%;
 
   @if $passwordPageUseBgImage {
-    background-image: url(//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/password-page-background.jpg?7352985754982877031);
+    background-image: url(//cdn.shopify.com/s/files/1/2021/5543/t/28/assets/password-page-background.jpg?7484528355087352049);
     background-size: cover;
     background-repeat: no-repeat;
     color: #ffffff;
