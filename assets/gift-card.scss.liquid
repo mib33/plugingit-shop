@@ -17,11 +17,40 @@ $colorBody: {{ settings.color_body_bg }};
 $colorBorder: {{ settings.color_borders }};
 
 // Gift Card Colors
-$colorGiftText: {{ settings.color_body_text }}; // note, this is always on a white background
-$colorGiftBorder: {{ settings.color_primary }};
+$colorGiftText: #999;
+$colorGiftBorder: {{ settings.color_body_bg_alt }};
 
 // Sizes
 $gutter: 30px;
+
+{%- assign header_family = settings.typography_headings -%}
+{%- assign base_family = settings.typography_body -%}
+
+{{ header_family | font_face }}
+{{ base_family | font_face }}
+
+{%- assign header_family_bold = header_family | font_modify: 'weight', 'bolder' -%}
+
+{{ header_family_bold | font_face }}
+
+$headerFontStack: {{ header_family.family }}, {{ header_family.fallback_families }};
+$headerFontWeight: {{ header_family.weight }};
+$headerFontWeightBold: {{ header_family_bold.weight | default: 700 }};
+$headerFontStyle: {{ header_family.style }};
+
+{%- assign base_family_bold = base_family | font_modify: 'weight', 'bolder' -%}
+
+{{ base_family_bold | font_face }}
+
+$bodyFontStack: {{ base_family.family }}, {{ base_family.fallback_families }};
+$bodyFontWeight: {{ base_family.weight }};
+$bodyFontWeightBold: {{ base_family_bold.weight | default: 700 }};
+$bodyFontStyle: {{ base_family.style }};
+
+$colorText: {{ settings.color_text_general }};
+$colorTitle: {{ settings.color_text_titles }};
+$colorSubtitle: {{ settings.color_text_alternate }};
+
 
 /*============================================================================
   #Sass Mixins
@@ -54,6 +83,17 @@ $gutter: 30px;
 /*============================================================================
   #Base Styles
 ==============================================================================*/
+header, nav, section, article, aside, footer {
+  display:block;
+}
+
+body {
+	font-family: $bodyFontStack;
+	font-size: em(14px);
+  font-weight: $bodyFontWeight;
+  font-style: $bodyFontStyle;
+}
+
 .template-giftcard,
 .template-giftcard body {
   background: $colorBody;
@@ -65,6 +105,7 @@ $gutter: 30px;
 
 .template-giftcard .wrapper {
   max-width: 588px;
+  margin: auto;
 
   img, object, iframe {
     max-width: 100%;
@@ -77,6 +118,12 @@ $gutter: 30px;
   text-align: center;
   -webkit-animation: fadein 0.5s ease-in-out both 0.4s;
   animation: fadein 0.5s ease-in-out both 0.4s;
+}
+
+.header-logo a {
+	max-width: {{ settings.logo_max_width }}px;
+	margin: auto;
+	display: block;
 }
 
 .shop-url {
@@ -114,8 +161,13 @@ $gutter: 30px;
 }
 
 .giftcard__title {
-  float: left;
-  margin-bottom: 0;
+	margin: auto;
+  font-size: em(18px);
+  font-family: $headerFontStack;
+  color: $colorTitle;
+  font-weight: $headerFontWeightBold;
+  font-style: $headerFontStyle;
+  text-align: center;
 }
 
 .giftcard__tag {
@@ -208,7 +260,7 @@ $gutter: 30px;
 }
 
 .giftcard__code__text {
-  font-weight: 400;
+  font-weight: $bodyFontWeight;
   font-size: 1.875em;
   text-transform: uppercase;
   border-radius: 2px;
@@ -216,7 +268,7 @@ $gutter: 30px;
   padding: .4em .5em;
   display: inline-block;
   vertical-align: baseline;
-  color: $colorGiftText;
+  color: #777;
   line-height: 1;
 
   .disabled & {
@@ -284,7 +336,7 @@ $gutter: 30px;
   background: #333;
   background: rgba(51,51,51,0.9);
   min-height: 14px;
-  font-weight: 400;
+  font-weight: $bodyFontWeight;
   font-size: 12px;
   text-decoration: none;
   line-height: 16px;
@@ -318,7 +370,7 @@ $gutter: 30px;
   left: $gutter / 2;
   top: 50%;
   font-size: 0.875em;
-  font-weight: bold;
+  font-weight: $bodyFontWeightBold;
   display: block;
   text-transform: uppercase;
   letter-spacing: .2em;
@@ -370,6 +422,45 @@ $gutter: 30px;
   }
 }
 
+
+// BUTTON SHORTCODE
+
+$colorBtnPrimary: {{ settings.color_primary }};
+$colorBtnPrimaryHover: darken($colorBtnPrimary, 10%);
+
+.btn {
+
+  font-family: $headerFontStack;
+  font-weight: $headerFontWeight;
+  font-style: $headerFontStyle;
+  border-radius: 3px;
+  display: inline-block;
+  @extend %coloranim;
+
+  &.btn--regular {
+    font-size: em(16px);
+    height: 50px;
+    line-height: 48px;
+    padding: 0 30px;
+  }
+
+  &.btn--fill {
+
+    color: #fff;
+    top: -1px;
+    position: relative;
+    border: none;
+
+    &.btn--color {
+      background: $colorBtnPrimary;
+      &:hover {
+        background: $colorBtnPrimaryHover;
+      }
+    }
+
+  }
+
+}
 
 /*============================================================================
   #Media Queries
