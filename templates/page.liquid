@@ -1,19 +1,8 @@
-<!-- /templates/page.liquid -->
-<div class="grid">
-  <div class="grid__item large--five-sixths push--large--one-twelfth">
+{% assign header_title = page.title %}
+{% include 'page_header' with header_title %}
 
-    <header class="section-header text-center">
-      <h1>{{ page.title }}</h1>
-      <hr class="hr--small">
-    </header>
-
-    <div class="grid">
-      <div class="grid__item large--four-fifths push--large--one-tenth">
-        <div class="rte rte--nomargin rte--indented-images">
-          {{ page.content }}
-        </div>
-      </div>
-    </div>
-
+<div class="wrapper wrapper--margins wrapper__article">
+  <div class="rte">
+    {{ page.content }}
   </div>
 </div>

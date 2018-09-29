@@ -1,156 +1,135 @@
-<div class="featured-blog featured-blog--{{ section.id }}" data-section-id="{{ section.id }}">
-  <div class="wrapper">
+<div id="home-blog" class="index-section home-section">
+	<div class="home-blog">
+		<div class="wrapper wrapper--margins">
+		{%- assign blog = blogs[section.settings.blog] -%}
 
-    {%- assign blog = blogs[section.settings.blog] -%}
+			{% if blogs[section.settings.blog] != blank %}
 
-    {% case section.settings.post_limit %}
-      {% when 3 %}
-        {%- assign width = 'small--one-whole medium--one-half large--one-third' -%}
-      {% when 2 %}
-        {%- assign width = 'small--one-whole medium--one-half large--one-half' -%}
-      {% when 1 %}
-        {% if section.settings.blog_show_image %}
-          {%- assign width = 'small--one-whole medium--one-half large--one-half' -%}
-        {% else %}
-          {%- assign width = 'text-center large--four-fifths push--large--one-tenth' -%}
-        {% endif %}
-      {% else %}
-        {%- assign width = 'small--one-whole medium--one-half large--one-third' -%}
-    {% endcase %}
+			  {% if section.settings.title != blank %}
+			    <h2 class="home-section-title">{{ section.settings.title | escape }}</h2>
+			  {% endif %}
 
-    {% if section.settings.title != blank %}
-      <div class="section-header text-center">
-        <h2 class="h1 section-header__title">{{ section.settings.title | escape }}</h2>
-        <hr class="hr--small">
-      </div>
-    {% endif %}
+			{% paginate blog.articles by section.settings.post_limit %}
 
-    {% unless blog.articles_count == 0 %}
-      <div class="grid-uniform">
-        {% for article in blog.articles limit: section.settings.post_limit %}
-          <div class="grid__item {{ width }}">
-            <div class="featured-blog__post">
+			<div class="blog-list">
 
-              {% if section.settings.blog_show_image %}
-                {% unless article.image == blank %}
-                  <a class="article__featured-link" href="{{ article.url }}">
-                    <noscript>
-                      {{ article.image | img_url: '1024x1024' | img_tag: article.title | escape }}
-                    </noscript>
-                    <div class="article__featured-image-wrapper" style="padding-top:{{ 1 | divided_by: article.image.aspect_ratio | times: 100}}%;">
-                      {% assign img_url = article.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' %}
-                      <img class="article__featured-image lazyload"
-                        src="{{ article.image | img_url: '300x300' }}"
-                        data-src="{{ img_url }}"
-                        data-widths="[310, 360, 480, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                        data-aspectratio="{{ article.image.aspect_ratio }}"
-                        data-sizes="auto"
-                        alt="{{ article.title | escape }}">
-                    </div>
-                  </a>
-                {% endunless %}
-              {% endif %}
+				{% for article in blog.articles %}
+				  {% include 'blog_item' with blog.comments_enabled? %}
+				{% endfor %}
 
-              {% unless section.settings.post_limit == 1 and section.settings.blog_show_image %}
-                {% include 'featured-blog', article: article %}
-              {% endunless %}
+			</div>
 
-            </div>
-          </div>
+			{% if paginate.next.is_link %}
+			  <p class="text-center"><a class="btn btn--large btn--outline btn--dark" href="{{ blog.url }}">More posts</a></p>
+			{% endif %}
 
-          {% if section.settings.post_limit == 1 and section.settings.blog_show_image %}
-            <div class="grid__item {{ width }}">
-              <div class="featured-blog__post">
-                 {% include 'featured-blog', article: article %}
-              </div>
-            </div>
-          {% endif %}
+			{% endpaginate %}
 
-        {% endfor %}
-      </div>
+			{% else %}
 
-    {% else %}
-      {% include 'onboarding-featured-blog' %}
-    {% endunless %}
+			<!-- onboarding -->
+			<div class="onboarding">
+				<h2 class="home-section-title">{{ 'homepage.onboarding.section_title' | t }}</h2>
+				<p>{{ 'homepage.onboarding.no_content' | t }}</p>
+			</div>
 
-    {% if blog == empty %}
-      {% include 'onboarding-featured-blog' %}
-    {% endif %}
+			{% endif %}
 
-    {% if section.settings.show_view_all %}
-      <div class="section-header text-center">
-        <a href="{{ blog.url }}" class="btn">
-          {{ 'blogs.article.view_all' | t }}
-        </a>
-      </div>
-    {% endif %}
-
-  </div>
+		</div>
+	</div>
 </div>
 
+
+
 {% schema %}
-  {
-    "name": "Blog posts",
-    "settings": [
-      {
-        "type": "text",
-        "id": "title",
-        "label": "Heading",
-        "default": "Blog"
+{
+  "name": {
+    "de": "Blogposts",
+    "en": "Blog posts",
+    "es": "Entradas del blog",
+    "fr": "Articles de blog",
+    "it": "Articoli del blog",
+    "ja": "ブログ記事",
+    "pt-BR": "Posts do blog"
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "de": "Header",
+        "en": "Header",
+        "es": "Encabezado",
+        "fr": "En-tête",
+        "it": "Header",
+        "ja": "ヘッダー",
+        "pt-BR": "Cabeçalho"
       },
-      {
-        "id": "blog",
-        "type": "blog",
-        "label": "Blog"
-      },
-      {
-        "type": "range",
-        "id": "post_limit",
-        "label": "Posts",
-        "min": 1,
-        "max": 3,
-        "step": 1,
-        "default": 3
-      },
-      {
-        "type": "checkbox",
-        "id": "blog_show_date",
-        "label": "Show date",
-        "default": true
-      },
-      {
-        "type": "checkbox",
-        "id": "blog_show_author",
-        "label": "Show author",
-        "default": false
-      },
-      {
-        "type": "checkbox",
-        "id": "blog_show_image",
-        "label": "Show cover image",
-        "default": false
-      },
-      {
-        "type": "checkbox",
-        "id": "blog_show_excerpt",
-        "label": "Show excerpt",
-        "default": true
-      },
-      {
-        "type": "checkbox",
-        "id": "show_view_all",
-        "label": "Show 'View all' button",
-        "default": false
+      "default": {
+        "de": "Blog",
+        "en": "Blog",
+        "es": "Blog",
+        "fr": "Blog",
+        "it": "Blog",
+        "ja": "ブログ",
+        "pt-BR": "Blog"
       }
-    ],
-    "presets": [
-      {
-        "name": "Blog posts",
-        "category": "Blog",
-        "settings": {
-          "blog": "News"
-        }
+    },
+    {
+      "id": "blog",
+      "type": "blog",
+      "label": {
+        "de": "Blog",
+        "en": "Blog",
+        "es": "Blog",
+        "fr": "Blog",
+        "it": "Blog",
+        "ja": "ブログ",
+        "pt-BR": "Blog"
       }
-    ]
-  }
+    },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": {
+        "de": "Posts",
+        "en": "Posts",
+        "es": "Publicaciones",
+        "fr": "Articles",
+        "it": "Articoli",
+        "ja": "投稿",
+        "pt-BR": "Posts"
+      },
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "presets": [
+    {
+      "name": {
+        "de": "Blogposts",
+        "en": "Blog posts",
+        "es": "Entradas del blog",
+        "fr": "Articles de blog",
+        "it": "Articoli del blog",
+        "ja": "ブログ記事",
+        "pt-BR": "Posts do blog"
+      },
+      "category": {
+        "de": "Blog",
+        "en": "Blog",
+        "es": "Blog",
+        "fr": "Blog",
+        "it": "Blog",
+        "ja": "ブログ",
+        "pt-BR": "Blog"
+      },
+      "settings": {
+        "blog": "News"
+      }
+    }
+  ]
+}
 {% endschema %}
