@@ -1,24 +1,53 @@
-{% capture header_title %}{{ blog.title }}{% if current_tags %} - {{ current_tags.first }}{% endif %}{% endcapture %}
-{% include 'page_header' with header_title %}
+<!-- /templates/blog.liquid -->
 
-<div class="wrapper wrapper--margins">
+{% paginate blog.articles by 5 %}
 
-  {% if settings.blog_rss_enabled %}
-    <div class="subscribe-link"><span class="label">{{ 'general.sharing.rss_subscribe' | t }}</span><a href="{{ blog.url }}.atom" target="_blank">{% include 'asset_svg' with 'rss' %}</a></div>
-  {% endif %}
+<div class="page-width page-container" itemscope itemtype="http://schema.org/Article">
+  <header class="visually-hidden">
+    {% if current_tags %}
+      <h1>{{ blog.title | link_to: blog.url }} &mdash; {{ current_tags.first }}</h1>
+    {% else %}
+      <h1>{{ blog.title }}</h1>
+    {% endif %}
+  </header>
 
-  {% paginate blog.articles by 5 %}
+  {% for article in blog.articles %}
+    <h2><a href="{{ article.url }}">{{ article.title }}</a></h2>
 
-    <div class="blog-list">
-      {% for article in blog.articles %}
-        {% include 'blog_item' with blog.comments_enabled? %}
-      {% endfor %}
+    {% comment %}
+      Use the excerpt if it exists or truncate the full article
+    {% endcomment %}
+    <div class="rte rte--indented-images">
+      {% if article.image %}
+        <p>
+          <a href="{{ article.url }}">
+            {{ article | img_url: 'master' | img_tag: article.title }}
+          </a>
+        </p>
+      {% endif %}
+
+      {% if article.excerpt.size > 0 %}
+        {{ article.excerpt }}
+      {% else %}
+        <p>{{ article.content | truncatewords: 100 }}</p>
+      {% endif %}
     </div>
 
-    {% if paginate.next.is_link %}
-      <div id="infinite-link"><a class="btn btn--large btn--outline btn--dark" href="{{ paginate.next.url }}">More posts</a></div>
-    {% endif %}
+    <p class="action-link">
+      <a href="{{ article.url }}">{{ 'blogs.article.read_more' | t }} <span class="icon icon-arrow-right action-link__icon" aria-hidden="true"></span></a>
+    </p>
 
-  {% endpaginate %}
+    {% unless forloop.last %}
+      <hr class="hr--clear">
+    {% endunless %}
 
+  {% endfor %}
+
+  {% if paginate.pages > 1 %}
+    <hr class="hr--clear">
+
+    {% include 'pagination' %}
+  {% endif %}
 </div>
+
+{% endpaginate %}
