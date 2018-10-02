@@ -1,28 +1,4 @@
 <script id="swym-snippet">
-  (function loadSwymFaster(){
-    var elScripts = document.querySelectorAll("script:not([src]):not([class]):not([id])"), scriptLoadScript, scriptLoadScriptText;
-    for(var i = 0; i < elScripts.length; i++){
-      var elScript = elScripts[i];
-      // TODO change swym- check to script metafield
-      if(elScript.innerText.indexOf('swym-shopify.js') > -1){
-        scriptLoadScriptText = elScript.innerText;
-        break;
-      }
-    }
-    if(scriptLoadScriptText) {
-      var startStr = 'var urls =';
-      var startIdx = scriptLoadScriptText.indexOf(startStr);
-      var endStr = '"];';
-      var endIdx = scriptLoadScriptText.indexOf(endStr,startIdx);
-      var listOfUrlsText = scriptLoadScriptText.slice(startIdx + startStr.length, endIdx + endStr.length);
-      var s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.src = ({{ shop.metafields.swym.js_path | json }} || "//swymprod.azureedge.net/code/swym-shopify.js") + "?shop={{shop.permanent_domain | url_encode}}";
-      var x = document.getElementsByTagName('script')[0];
-      x.parentNode.insertBefore(s, x);
-    }
-  })();
-
   window.swymCart = {{ cart | json }};
   window.swymPageLoad = function(){
     window.SwymProductVariants = window.SwymProductVariants || {};
@@ -33,11 +9,7 @@
     window.SwymProductInfo.product = {{ product | json }};
     window.SwymProductInfo.variants = window.SwymProductInfo.product.variants;
     var piu = {{ product.featured_image | json }};
-    {% if product.selected_or_first_available_variant %}
-    {% assign currentVariant = product.selected_or_first_available_variant%}
-    {% else %}
     {% assign currentVariant = product.variants[0] %}
-    {% endif %}
     {% for variant in product.variants %}
       {% if variant.selected %}
         {% assign currentVariant = variant %}
@@ -53,6 +25,9 @@
         variants: [{ {{ variant.title | json }} : {{variant.id|json}}}]
       };
     {% endfor %}
+    if (variants.length == 0){
+      {% assign currentVariant = product.variants[0] %}
+    }
     window.SwymProductInfo.currentVariant = {{currentVariant.id | json}};
     var product_data = {
       et: 1, empi: window.SwymProductInfo.product.id, epi: window.SwymProductInfo.currentVariant,
@@ -100,12 +75,12 @@
     })();
   }
   window.swymCustomerId = {% if customer %}"{{ customer.id }}"{% else %}null{% endif %};
-  var swappName = ({{ shop.metafields.swym.app | json }} || "Wishlist");
   var swymJSObject = {
-    pid: {{ shop.metafields.swym.pid | json }} || "P/uXjvFFBDIjuf9JQpwV5ZJ3/WQcfVfHXvXikRRp0cc=",
-    interface: "/apps/swym" + swappName + "/interfaces/interfaceStore.php?appname=" + swappName
+    pid: "P/uXjvFFBDIjuf9JQpwV5ZJ3/WQcfVfHXvXikRRp0cc=",
+    interface: "/apps/swymWishlist/interfaces/interfaceStore.php?appname=Wishlist",
+    shopid: "14258"
   };
-  window.swymJSShopifyLoad = function(){
+  function swymJSShopifyLoad(){
     if(window.swymPageLoad) swymPageLoad();
     if(!window._swat) {
       (function (s, w, r, e, l, a, y) {
@@ -115,18 +90,20 @@
         };
       })('_swrc', '', window);
       _swrc('RetailerId', swymJSObject.pid);
+      _swrc('InterfacePath', swymJSObject.interface);
+      _swrc('ShopId', swymJSObject.shopid);
       _swrc('Callback', function(){initSwymShopify();});
     }else if(window._swat.postLoader){
       _swrc = window._swat.postLoader;
       _swrc('RetailerId', swymJSObject.pid);
+      _swrc('InterfacePath', swymJSObject.interface);
+      _swrc('ShopId', swymJSObject.shopid);
       _swrc('Callback', function(){initSwymShopify();});
     }else{
       initSwymShopify();
     }
   }
-  if(!window._SwymPreventAutoLoad) {
-    swymJSShopifyLoad();
-  }
+  swymJSShopifyLoad();
   window.swymGetCartCookies = function(){
     var RequiredCookies = ["cart", "swym-session-id", "swym-swymRegid", "swym-email"];
     var reqdCookies = {};
@@ -136,6 +113,7 @@
     var cart_token = window.swymCart.token;
     var data = {
         action:'cart',
+        shopid:swymJSObject.shopid,
         token:cart_token,
         cookies:reqdCookies
     };
@@ -147,7 +125,8 @@
     var regid = _swat.get(_swat.key.REGID);
     var swym_session_id = _swat.storage.getSessionId();
     var customer_id = "{{ customer.id }}";
-    var data = {action: 'customer', regid:regid, customer_id:customer_id,swym_session_id:swym_session_id};
+    var data = {action: 'customer',shopid:swymJSObject.shopid,
+        regid:regid,customer_id:customer_id,swym_session_id:swym_session_id};
     return {status:0,data:data};
     {% else %}
     return {status:1};
@@ -187,9 +166,3 @@
     });
   }
 </script>
-<style id="swym-product-view-defaults">
-  /* Hide when not loaded */
-  .swym-button.swym-add-to-wishlist-view-product:not(.swym-loaded){
-    display: none;
-  }
-</style>

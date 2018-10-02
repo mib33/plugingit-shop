@@ -1,3 +1,17 @@
+{% comment %} First time code {% endcomment %}
+{% if swym-product-view-init %}
+{% else %}
+<script>
+
+</script>
+<style>
+  /* Hide when not loaded */
+  .swym-button.swym-add-to-wishlist-view-product:not(.swym-loaded){
+    display: none;
+  }
+</style>
+{% assign swym-product-view-init = true %}
+{% endif %}
 {% if product %}
 <script class="swym-product-view-snippet">
 ['SwymViewProducts', 'SwymWatchProducts', 'SwymProductVariants'].forEach(function(k){

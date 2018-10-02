@@ -1,0 +1,46 @@
+{% assign product_found = false %}
+{% assign skip = false %}
+{% assign collection_group = products | map: 'id' %}
+{% assign collection_group_thumb = collection_group | append : 'thumb' %}
+{% assign collection_group_mobile = collection_group | append : 'mobile' %}
+
+{% capture new_row %}
+    <br class="clear product_clear" />
+{% endcapture %}
+
+<div itemtype="http://schema.org/ItemList" class="products">
+  {% for product in products limit: limit %}
+  {% include 'bold-product' with product, hide_action: 'skip' %}
+    {% if product.id == skip_product.id or skip == true %}
+      {% assign product_found = true %}
+    {% else %}
+
+      {% if forloop.rindex0 == 0 and product_found == false and forloop.length != products.count and template != 'search' %}
+        {% assign skip = true %}
+      {% else %}
+ 	 {% include 'shappify-sales-icon-collection' %}
+        {% include 'product-thumbnail' with product-loop %}
+
+        {% if products_per_row == "2" %}
+          {% cycle collection_group: '', new_row %}
+        {% elsif products_per_row == "3" %}
+          {% cycle collection_group: '', '', new_row %}    
+        {% elsif products_per_row == "4" %}  
+          {% cycle collection_group: '', '', '', new_row %}
+
+        {% endif %}
+      {% endif %}    
+    {% endif %}
+  {% endfor %}
+      <div class="yotpo bottomLine"
+data-appkey="vHRgFyxPOkGfi0jhOAxceQfCZ12ubNupGpC4EBAI"
+data-domain="{{ shop.permanent_domain | escape }}"
+data-product-id="{{ product.id }}"
+data-product-models="{{ product.id }}"
+data-name="{{ product.title | escape }}"
+data-url="{{ page.url }}"
+data-image-url="{{ product.featured_image | product_img_url: "large" |replace: '?', '%3F' | replace: '&','%26'}}"
+data-description="{{ product.description | escape }}"
+data-bread-crumbs="{% for tag in product.tags %}{{ tag | escape }};{% endfor %}">
+</div>
+</div>
