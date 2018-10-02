@@ -1,0 +1,274 @@
+{% if template contains "product" %}
+
+ <button id="SpreadrLink" type="button" style="display:none;" name="SpreadrLink" class="btn" 
+                    onclick="SpreadrButtonClick()"
+                    data-comtag="avataraffilia-20" 
+                    data-intag="" 
+                    data-catag="" 
+                    data-uktag="" 
+                    data-detag="" 
+                    data-frtag=""
+                    data-estag=""
+                    data-cntag="" 
+                    data-ittag="" 
+                    data-jptag=""
+                    data-mxtag=""                        
+                    data-redirect-url="{{product.metafields.global["spreadr-url"] | escape }}" 
+                    data-spreadr-tag="{{product.metafields.global["spreadr-tag"] | escape }}" 
+                    data-region="{{product.metafields.global["spreadr-region"] | escape }}" 
+                    data-product-tag="{{product.tags | escape }}" 
+                    data-spreadr-userid="4186"
+                    >
+              <span id="SpreadrLinkText">View on Amazon</span>
+</button>
+
+<script>
+var spreadrRedirectURL; 
+var SpreadrWrapper = document.getElementById("SpreadrLink");
+setTimeout(function waitSpreadrWrapper() {
+    if (document.body.contains(SpreadrWrapper)) {
+        SpreadrInit();
+    } else {
+        setTimeout(waitSpreadrWrapper, 100);
+    }
+}, 100);
+        
+function SpreadrInit(){
+    var spreadrtags = document.getElementById("SpreadrLink").getAttribute("data-spreadr-tag");
+    var findString = "spreadr-affiliate";
+  
+   if((spreadrtags !== undefined) && (spreadrtags !== null) && (spreadrtags !== ""))
+    {
+      
+       var spreadrtagindex = spreadrtags.indexOf(findString);
+      
+ 	   if (spreadrtagindex > -1) 
+        {        	          
+          
+          var hiddentag = document.getElementById("SpreadrLink").getAttribute("data-product-tag");
+  		   var findText = "spreadr-hidden";
+          
+           if((hiddentag !== undefined) && (hiddentag !== null) && (hiddentag !== ""))
+            {
+              var hiddentagindex = hiddentag.indexOf(findText);
+              
+               if (hiddentagindex < 0)
+               {                 
+                 	SpreadrShowButton();       
+                 
+               }
+              
+            }   
+            else
+            {
+              SpreadrShowButton();    
+            }       
+         
+      	}
+    }
+}  
+
+
+    
+function SpreadrShowButton()
+{
+  var Spreadraddtocartform = document.querySelector("form[action='/cart/add']");
+  var Spreadraddtocartbutton = Spreadraddtocartform.querySelector("[type='submit']");
+  var Spreadrlinkbutton = document.getElementById("SpreadrLink"); 
+
+//code for special themes
+  if((Spreadraddtocartbutton === undefined) || (Spreadraddtocartbutton === null) || (Spreadraddtocartbutton === ""))
+  {    
+    Spreadraddtocartbutton = document.getElementById("add-to-cart");    
+    if((Spreadraddtocartbutton === undefined) || (Spreadraddtocartbutton === null) || (Spreadraddtocartbutton === ""))
+    {
+        Spreadraddtocartbutton = document.getElementById("product-add-to-cart");
+    }
+    else
+    {
+        Spreadraddtocartbutton.classList.remove("add-to-cart");    
+    }
+  }
+  
+  Spreadrlinkbutton.className += " " + Spreadraddtocartbutton.classList;
+  
+  Spreadraddtocartbutton.style.display = "none";  
+  Spreadrlinkbutton.style.display = "block";
+  //console.log("1");
+   
+    setInterval(function () {
+        Spreadraddtocartbutton.style.display = "none";  
+        Spreadrlinkbutton.style.display = "block";        
+        //console.log("3");
+    }, 4000);
+    
+    SetAffiliateTags();
+    
+    //if geo-localization activated
+    if(0)
+    {
+      if (window.addEventListener)
+      {
+          window.addEventListener("load", findlocation, false)
+      } else {
+          window.attachEvent("onload", findlocation)
+      }
+    }
+}
+
+function SetAffiliateTags()
+{
+    spreadrRedirectURL = document.getElementById("SpreadrLink").getAttribute("data-redirect-url");
+    
+    var region = document.getElementById("SpreadrLink").getAttribute("data-region");    
+    var affiliateTag = "";
+    if(region == "com")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-comtag");
+    }
+    else if(region == "in")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-intag");
+    }
+     else if(region == "ca")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-catag");
+    }
+      else if(region == "co.uk")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-uktag");
+    }
+     else if(region == "de")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-detag");
+    }
+     else if(region == "fr")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-frtag");
+    }
+     else if(region == "es")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-estag");
+    }
+     else if(region == "cn")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-cntag");
+    }
+     else if(region == "it")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-ittag");
+    }
+     else if(region == "co.jp")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-jptag");
+    }
+     else if(region == "com.mx")
+    {
+        affiliateTag = document.getElementById("SpreadrLink").getAttribute("data-mxtag");
+    }
+  	
+    spreadrRedirectURL = spreadrRedirectURL+"?tag="+affiliateTag;  	
+}
+    
+function SpreadrButtonClick()
+{  	
+    window.open(spreadrRedirectURL);
+    
+    //if analytics is ON
+      if(0) 
+      {
+        if(typeof ga !== "undefined") {
+             ga("send", "event", { eventCategory: "Spreadr Link", eventAction: "Click", eventLabel:spreadrRedirectURL});
+          }  
+      }
+}
+
+  
+function findlocation()
+{
+    jQuery.ajax({
+        url: "//freegeoip.net/json/",
+        type: "POST",
+        dataType: "jsonp",
+        success: function(location) {     
+          localize(location.country_code.toLowerCase());
+        }
+    });
+}
+
+function localize(country_code)
+{     
+    var spreadr_region = "{{ product.metafields.global["spreadr-region"] }}";
+    
+  	switch(country_code) {
+    case "us":
+        if(spreadr_region != "com")
+        {
+          convertlink("com","avataraffilia-20");
+        }
+        break;
+    case "ca":
+        if(spreadr_region != "ca")
+        {
+          convertlink("ca","");
+        }
+        break;
+    case "gb":
+        if(spreadr_region != "co.uk")
+        {
+          convertlink("co.uk","");
+        }
+        break;
+    case "in":         
+        if(spreadr_region != "in")
+        {
+          convertlink("in","");
+        }
+        break;
+    case "de":         
+        if(spreadr_region != "de")
+        {
+          convertlink("de","");
+        }
+        break;
+    case "fr":         
+        if(spreadr_region != "fr")
+        {
+          convertlink("fr","");
+        }
+        break;
+    case "es":         
+        if(spreadr_region != "es")
+        {
+          convertlink("es","");
+        }
+        break;
+    case "it":            
+        if(spreadr_region != "it")
+        {
+          convertlink("it","");
+        }
+        break;
+     case "mx":            
+        if(spreadr_region != "com.mx")
+        {
+          convertlink("com.mx","");
+        }
+        break;
+    default:
+        break;
+	} 
+}
+
+ function convertlink(spreadr_region, aftag)
+ { 
+    var keywords = "{{ product.metafields.global["spreadr-title"] | url_encode }}";
+    if(keywords == "" || keywords.length <= 0)
+    {
+      keywords = "{{ product.title | url_encode }}";
+    }
+    spreadrRedirectURL = "http://amazon." + spreadr_region + "/s/?field-keywords=" + keywords + "&tag=" + aftag;      
+ }
+</script>
+  
+{% endif %}

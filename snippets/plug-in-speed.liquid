@@ -1,5 +1,5 @@
 {%- comment -%}
-  version: 0.0.4
+  version: 0.0.3
   ----------------------------------------------------------------------------------
    Plug in Speed for Shopify
 
@@ -49,54 +49,86 @@
   {%- assign _profile_endings = _content | size | plus: 1 -%}
 {%- endif -%}
 
+
+{%- comment -%}Remove start tags{%- endcomment -%}
+
+{%- for _element in startings -%}
+  {%- capture _start -%}<{{ _element }}>{%- endcapture -%}
+  {%- assign _content = _content | remove: _start -%}
+{%- endfor -%}
+{%- if _profile and startings -%}
+  {%- assign _profile_startings = _content | size | plus: 1 -%}
+{%- endif -%}
+
+
+{%- comment -%}Remove comments{%- endcomment -%}
+
+{%- if comments == "all" -%}
+  {%- assign _comments = "<!-- -->" | split: " " -%}
+{%- else -%}
+  {%- assign _comments = comments -%}
+{%- endif -%}
+{%- if _comments.size == 2 -%}
+  {%- capture _comment_befores -%}.{{ _content }}{%- endcapture -%}
+  {%- assign _comment_befores = _comment_befores | split: _comments.first -%}
+  {%- for _comment_before in _comment_befores -%}
+    {%- if forloop.first -%}
+      {%- continue -%}
+    {%- endif -%}
+    {%- capture _comment_outside -%}
+      {%- if _carry -%}{{ _comments.first }}{%- endif -%}
+      {{ _comment_before }}
+    {%- endcapture -%}
+    {%- capture _comment -%}
+      {%- unless _carry -%}{{ _comments.first }}{%- endunless -%}
+      {{ _comment_outside | split: _comments.last | first }}
+      {%- if _comment_outside contains _comments.last -%}
+        {{ _comments.last }}
+        {%- assign _carry = false -%}
+      {%- else -%}
+        {%- assign _carry = true -%}
+      {%- endif -%}
+    {%- endcapture -%}
+    {%- assign _content = _content | remove_first: _comment -%}
+  {%- endfor -%}
+  {%- if _profile -%}
+    {%- assign _profile_comments = _content | size | plus: 1 -%}
+  {%- endif -%}
+{%- endif -%}
+
+
 {%- comment -%}Remove blanklines{%- endcomment -%}
-{%- for i in (2..20) reversed -%}
-  {%- assign spaces = _LINE_FEED -%}
-  {%- for j in (1..i) -%}
-    {%- assign spaces = spaces | append: " " -%}
-  {%- endfor -%}
-
-  {%- assign _content = _content | replace: spaces, "
+{%- assign content_split_to_lines = _content | split: "
 " -%}
+{%- assign _content = "" -%}
+{%- for line in content_split_to_lines -%}
+  {%- assign stripped_line = line | strip -%}
+  {%- if stripped_line != empty -%}
+    {%- assign _content = _content | append: stripped_line | append: _LINE_FEED -%}
+  {%- endif -%}
 {%- endfor -%}
-
-{%- for i in (2..15) reversed -%}
-  {%- assign breaks = "
-" -%}
-  {%- for j in (1..i) %}
-    {%- assign breaks = breaks | append: "
-" -%}
-  {%- endfor -%}
-
-  {%- assign _content = _content | remove: breaks -%}
-{%- endfor -%}
-
-{%- assign _content = _content | replace: "
-
-" , "
-" -%}
-
-{%- assign _content = _content | replace: "
-<" , "<" -%}
-
-{%- assign _content = _content | replace: "
-<" , "<" -%}
 
 {%- assign _content = _content | replace: ">
-" , ">" -%}
-
-{%- for i in (1..6) reversed -%}
-  {%- assign spaces = ">" -%}
-  {%- for j in (1..i) -%}
-    {%- assign spaces = spaces | append: " " -%}
-  {%- endfor -%}
-  {%- assign spaces = spaces | append: "<" -%}
-
-  {%- assign _content = _content | replace: spaces, "><" -%}
-{%- endfor -%}
+<", "> <" | rstrip -%}
 
 {%- if _profile -%}
   {%- assign _profile_collapse = _content | size | plus: 1 -%}
+{%- endif -%}
+
+
+{%- comment -%}Clip whitespace around elements{%- endcomment -%}
+
+{%- if clippings == "all" -%}
+  {%- assign _clippings = "html head title base link meta style body article section nav aside h1 h2 h3 h4 h5 h6 hgroup header footer address p hr blockquote ol ul li dl dt dd figure figcaption main div table caption colgroup col tbody thead tfoot tr td th" | split: " " -%}
+{%- else -%}
+  {%- assign _clippings = clippings -%}
+{%- endif -%}
+{%- for _element in _clippings -%}
+  {%- assign _edges = " <e;<e; </e>;</e>;</e> ;</e>" | replace: "e", _element | split: ";" -%}
+  {%- assign _content = _content | replace: _edges[0], _edges[1] | replace: _edges[2], _edges[3] | replace: _edges[4], _edges[5] -%}
+{%- endfor -%}
+{%- if _profile and _clippings -%}
+  {%- assign _profile_clippings = _content | size | plus: 1 -%}
 {%- endif -%}
 
 

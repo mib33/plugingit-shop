@@ -1,0 +1,266 @@
+{% comment %}
+
+  This snippet was installed by the JSON-LD for SEO application.
+
+  It could be updated from time to time as I add new JSON-LD features, so I
+  don't recommend editing it manually. If you run into an issues, or would like
+  to request a JSON-LD feature, please contact me at shopify@littlestreamsoftware.com.
+
+  Thanks!
+
+  - Eric Davis from Little Stream Software
+
+{% endcomment %}{% unless jsonld_for_seo_applied %}{% capture jsonld_for_seo_protocol %}{{ canonical_url | split: '://' | first }}://{% endcapture %}
+{%- assign jsonld_logo_metafield = shop.metafields.jsonld.logo -%}
+{%- assign jsonld_logo_default = 'logo.png' | asset_img_url | prepend: "https:" -%}
+{%- assign jsonld_logo = jsonld_logo_metafield | default: jsonld_logo_default -%}
+<script type="application/ld+json">
+{
+    "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+    "@type": "WebSite",
+    "url": "{{ jsonld_for_seo_protocol }}{{ shop.domain }}",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ jsonld_for_seo_protocol }}{{ shop.domain }}/search?q={query}",
+        "query-input": "required name=query"
+    }
+}
+</script>
+{%- unless shop.metafields.jsonld.hide_business == "true" -%}
+{%- assign jsonld_business_type = shop.metafields.jsonld.type | default: 'Organization' -%}
+<script type="application/ld+json">
+{
+    "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+    "@type": {{ jsonld_business_type | json }},
+    "name": {{ shop.name | json }},
+    "url": "{{ jsonld_for_seo_protocol }}{{ shop.domain }}",
+    "description": {{ shop.description | json }},{% unless shop.phone == blank %}
+    "telephone": {{ shop.metafields.jsonld.phone | default: shop.phone | json }},{% endunless %}
+    "logo": {{ jsonld_logo | json }},
+    "image": {{ shop.metafields.jsonld.image | default: jsonld_logo | json }},{% unless shop.metafields.jsonld.openingHours == blank %}
+    "openingHours": {{ shop.metafields.jsonld.openingHours | json }},{% endunless %}
+    "sameAs": {{ shop.metafields.jsonld.sameAs | default: '' | split: ',' | json }},{% if jsonld_business_type == 'LocalBusiness' %}
+    "hasMap": "{% unless shop.metafields.jsonld.hasMap == blank %}{{ shop.metafields.jsonld.hasMap }}{% else %}https://www.google.com/maps/@{{ shop.latitude }},{{ shop.longitude }},16z{% endunless %}",{% unless shop.metafields.jsonld.priceRange == blank %}
+    "priceRange": "{{ shop.metafields.jsonld.priceRange }}",{% endunless %}
+    "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": {{ shop.latitude | json }},
+        "longitude": {{ shop.longitude | json }}
+    },{% endif %}{% if jsonld_business_type == 'Organization' and shop.metafields.jsonld.brand != blank %}
+    "brand": {
+      "@type": "Brand",
+      "name": {{ shop.metafields.jsonld.brand | json }}
+    },{% endif %}
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": {{ shop.metafields.jsonld.address | default: shop.address.street | json }},
+        "addressLocality": {{ shop.metafields.jsonld.city | default: shop.address.city | json }},
+        "addressRegion": {{ shop.metafields.jsonld.province | default: shop.address.province | json }},
+        "postalCode": {{ shop.metafields.jsonld.zip | default: shop.address.zip | json }},
+        "addressCountry": {{ shop.metafields.jsonld.country | default: shop.address.country | json }}
+    }
+}
+</script>
+{%- endunless -%}
+{%- unless shop.metafields.jsonld.hide_products == "true" -%}
+{%- if template contains 'product' -%}
+{%- assign jsonld_for_seo_object = product -%}
+{%- assign item_condition = shop.metafields.jsonld.itemCondition | default: "NewCondition" -%}
+<script type="application/ld+json">
+{
+  "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+  "@id": {{ canonical_url | json }},
+  "@type": "Product",{% unless shop.metafields.jsonld.hide_vendor == "true" %}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ product.metafields.jsonld.vendor | default: shop.metafields.jsonld.vendor | default: product.vendor | json }}
+  },{% endunless %}
+  "sku": {{ product.selected_or_first_available_variant.sku | json }},
+  "description": {{ product.description | strip_html | json }},
+  "url": {{ canonical_url | json }},
+  "name": {{ product.title | json }},{% if product.featured_image %}
+  "image": "https:{{ product.featured_image | product_img_url: 'grande' }}",{% endif %}
+  "itemCondition": "http://schema.org/{{ item_condition }}",
+  "offers": [{% for variant in product.variants %}{
+    "@type": "Offer",
+    "price": "{{ variant.price | divided_by: 100.0 }}",
+    "priceCurrency": "{{ shop.currency }}",
+    "itemCondition": "http://schema.org/{{ item_condition }}",
+    "url": {{ canonical_url | json }},
+    "sku": {{ variant.sku | json }},
+    "availability": "{% if variant.available %}InStock{% else %}OutOfStock{% endif %}"{% if variant.barcode.size == 12 %},
+    "gtin12": "{{variant.barcode}}"
+  {% endif %}{% if variant.barcode.size == 13 %},
+    "gtin13": "{{variant.barcode}}"
+  {% endif %}
+  }{% unless forloop.last %},{% endunless %}{% endfor %}]
+  {%- unless shop.metafields.jsonld.skip_reviews == "true" -%}
+  {%- assign jsonld_review_provider = shop.metafields.jsonld.review_provider -%}
+  {% case jsonld_review_provider %}
+  {% when 'yotpo' %}
+    {%- assign jsonld_review_value = product.metafields.yotpo.reviews_average %}
+    {%- assign jsonld_review_count = product.metafields.yotpo.reviews_count %}
+  {% when 'orankl' %}
+    {%- assign jsonld_review_value = product.metafields.orankl.rating %}
+    {%- assign jsonld_review_count = product.metafields.orankl.review_count %}
+  {% when 'loox' %}
+    {%- assign jsonld_review_value = product.metafields.loox.avg_rating %}
+    {%- assign jsonld_review_count = product.metafields.loox.num_reviews %}
+  {% when 'ssw' %}
+    {%- assign jsonld_review_value = product.metafields.ssw.avg_rate %}
+    {%- assign jsonld_review_count = product.metafields.ssw.count_rate %}
+  {% when 'vnreviews' %}
+    {%- assign jsonld_review_value = product.metafields.vnreviews.ratingValue %}
+    {%- assign jsonld_review_count = product.metafields.vnreviews.reviewCount %}
+  {% when 'stamped' %}
+    {%- assign jsonld_review_value = product.metafields.stamped.reviews_average %}
+    {%- assign jsonld_review_count = product.metafields.stamped.reviews_count %}
+  {% when 'spr' %}
+    {% assign jsonld_review_count = product.metafields.spr.reviews | split: 'reviewCount" content="' | last | split: '"' |first | plus: 0 %}
+    {% assign jsonld_review_value = product.metafields.spr.reviews | split: 'ratingValue" content="' | last | split: '"' |first | plus: 0  %}
+    {% if jsonld_review_count == 0 and jsonld_review_value == 0 %}
+      {% assign jsonld_review_count = product.metafields.spr.reviews | split: 'votes" content="' | last | split: '"' |first | plus: 0 %}
+      {% assign jsonld_review_value = product.metafields.spr.reviews | split: 'average" content="' | last | split: '"' |first | plus: 0  %}
+    {% endif %}
+  {% else %}
+    {%- assign jsonld_review_value = "" %}
+    {%- assign jsonld_review_count = "" %}
+  {% endcase %}
+  {% if jsonld_review_provider != blank and jsonld_review_value != blank and jsonld_review_count != blank and jsonld_review_count != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "{{ jsonld_review_provider }}",
+    "ratingValue": {{ jsonld_review_value }},
+    "ratingCount": {{ jsonld_review_count }}
+  }{% elsif product.metafields.yotpo.reviews_count and product.metafields.yotpo.reviews_count != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "YOTPO",
+    "ratingValue": {{ product.metafields.yotpo.reviews_average }},
+    "ratingCount": {{ product.metafields.yotpo.reviews_count }}
+  }{% elsif product.metafields.orankl.review_count and product.metafields.orankl.review_count != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "Orankl",
+    "ratingValue": {{ product.metafields.orankl.rating }},
+    "ratingCount": {{ product.metafields.orankl.review_count }}
+  }{% elsif product.metafields.loox.num_reviews and product.metafields.loox.num_reviews != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "Loox",
+    "ratingValue": {{ product.metafields.loox.avg_rating }},
+    "ratingCount": {{ product.metafields.loox.num_reviews }}
+  }{% elsif product.metafields.ssw.count_rate and product.metafields.ssw.count_rate != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "SocialShopWave",
+    "ratingValue": {{ product.metafields.ssw.avg_rate }},
+    "ratingCount": {{ product.metafields.ssw.count_rate }}
+  }{% elsif product.metafields.vnreviews.reviewCount and product.metafields.vnreviews.reviewCount != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "Trust Reviews",
+    "ratingValue": {{ product.metafields.vnreviews.ratingValue }},
+    "ratingCount": {{ product.metafields.vnreviews.reviewCount }}
+  }{% elsif product.metafields.stamped.reviews_count and product.metafields.stamped.reviews_count != "0" %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "description": "Stamped.io",
+    "ratingValue": {{ product.metafields.stamped.reviews_average }},
+    "ratingCount": {{ product.metafields.stamped.reviews_count }}
+  }{% elsif product.metafields.spr.reviews and product.metafields.spr.reviews != blank %}
+    {% assign jsonld_review_count = product.metafields.spr.reviews | split: 'reviewCount" content="' | last | split: '"' |first | plus: 0 %}
+    {% assign jsonld_review_value = product.metafields.spr.reviews | split: 'ratingValue" content="' | last | split: '"' |first | plus: 0  %}
+    {% if jsonld_review_count == 0 and jsonld_review_value == 0 %}
+      {% assign jsonld_review_count = product.metafields.spr.reviews | split: 'votes" content="' | last | split: '"' |first | plus: 0 %}
+      {% assign jsonld_review_value = product.metafields.spr.reviews | split: 'average" content="' | last | split: '"' |first | plus: 0  %}
+    {% endif %}
+    {% if jsonld_review_count > 0 and jsonld_review_value > 0 %},
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "description": "Shopify Product Reviews",
+      "ratingValue": {{ jsonld_review_value }},
+      "ratingCount": {{ jsonld_review_count }}
+    }{% endif %}
+  {% endif %}
+  {% endunless %}
+}
+</script>
+{%- endif -%}
+{%- endunless -%}
+{% if template contains 'article' or article !=  nil %}{% assign jsonld_for_seo_object = article %}
+<script type="application/ld+json">
+{
+  "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+  "@type": "Article",
+  "url": {{ canonical_url | json }},
+  "mainEntityOfPage": {{ canonical_url | json }},
+  "name": {{ article.title | json }},
+  "author": {{ jsonld_for_seo_object.metafields.jsonld.author | default: article.author | json }},
+  "publisher": {
+    "@type": "Organization",
+    "logo": {
+      "@type": "ImageObject",{% unless shop.metafields.jsonld.logoWidth == blank %}
+      "width": {{ shop.metafields.jsonld.logoWidth | json }},{% endunless %}{% unless shop.metafields.jsonld.logoHeight == blank %}
+      "height": {{ shop.metafields.jsonld.logoHeight | json }},{% endunless %}
+      "url": {{ jsonld_logo | json }}
+    },
+    "name": {{ shop.name | json }}
+  },
+  "headline": {{ article.title | json }},
+  "image": {
+    "@type": "ImageObject",{% assign articleImageWidth = article.metafields.jsonld.imageWidth | default: shop.metafields.jsonld.articleImageWidth | default: 1024 %}
+    "width": {{ articleImageWidth | json }},{% assign articleImageHeight = article.metafields.jsonld.imageHeight | default: shop.metafields.jsonld.articleImageHeight | default: 1024 %}
+    "height": {{ articleImageHeight | json }},{% if article.image %}
+    "url": "https:{{ article | img_url: '1024x1024' }}"{% else %}
+    "url": "https://cdn.shopify.com/s/images/admin/no-image-large.gif"{% endif %}
+  },
+  "datePublished": "{{ article.created_at }}",
+  "dateModified": "{{ article.published_at }}",
+  "description": {{ article.content | strip_html | json }},
+  "articleBody": {{ article.content | strip_html | json }}
+}
+</script>{% endif %}{% if template contains 'collection' %}{% assign jsonld_for_seo_object = collection %}
+{% endif %}{% if jsonld_for_seo_object.metafields.jsonld.type == 'VideoObject' %}
+<script type="application/ld+json">
+{
+  "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+  "@type": "VideoObject",
+  "name": {{ jsonld_for_seo_object.metafields.jsonld.name | json }},
+  "description": {{ jsonld_for_seo_object.metafields.jsonld.description | json }},
+  "thumbnailUrl": {{ jsonld_for_seo_object.metafields.jsonld.thumbnailURL | json }},
+  "duration": {{ jsonld_for_seo_object.metafields.jsonld.duration | json }},
+  "embedUrl": {{ jsonld_for_seo_object.metafields.jsonld.embedURL | json }},
+  "uploadDate": "{{ jsonld_for_seo_object.metafields.jsonld.uploadDate | default: jsonld_for_seo_object.published_at }}",
+  "publisher": {
+    "@type": "Organization",
+    "logo": {
+      "@type": "ImageObject",{% unless shop.metafields.jsonld.logoWidth == blank %}
+      "width": {{ shop.metafields.jsonld.logoWidth | json }},{% endunless %}{% unless shop.metafields.jsonld.logoHeight == blank %}
+      "height": {{ shop.metafields.jsonld.logoHeight | json }},{% endunless %}
+      "url": {{ jsonld_logo | json }}
+    },
+    "name": {{ shop.name | json }}
+  }
+}
+</script>{% endif %}{% unless jsonld_for_seo_object.metafields.jsonld.recipeCategory == blank %}{% assign jsonld_for_seo_default_image = jsonld_for_seo_object.image | img_url: 'grande' | prepend: 'https:' %}
+<script type="application/ld+json">
+{
+  "@context": "{{ jsonld_for_seo_protocol }}schema.org",
+  "@type": "Recipe",{% unless jsonld_for_seo_object.metafields.jsonld.recipeCategory == blank %}
+  "recipeCategory": {{ jsonld_for_seo_object.metafields.jsonld.recipeCategory | json }},{% endunless %}{% unless jsonld_for_seo_object.metafields.jsonld.cookTime == blank %}
+  "cookTime": {{ jsonld_for_seo_object.metafields.jsonld.cookTime | json }},{% endunless %}{% unless jsonld_for_seo_object.metafields.jsonld.prepTime == blank %}
+  "prepTime": {{ jsonld_for_seo_object.metafields.jsonld.prepTime | json }},{% endunless %}{% unless jsonld_for_seo_object.metafields.jsonld.totalTime == blank %}
+  "totalTime": {{ jsonld_for_seo_object.metafields.jsonld.totalTime | json }},{% endunless %}
+  "nutrition": { {% unless jsonld_for_seo_object.metafields.jsonld.calories == blank %}
+    "calories": {{ jsonld_for_seo_object.metafields.jsonld.calories | append: ' calories' | json }},{% endunless %}
+    "@type": "NutritionInformation"
+  },
+  "recipeIngredient": {{ jsonld_for_seo_object.metafields.jsonld.recipeIngredient | default: '' | split: ';' | json }},
+  "recipeInstructions": {{ jsonld_for_seo_object.metafields.jsonld.recipeInstructions | default: '' | split: ';' | json }},
+  "name": {{ jsonld_for_seo_object.metafields.jsonld.name | default: jsonld_for_seo_object.title | escape | json }},
+  "description": {{ jsonld_for_seo_object.metafields.jsonld.description | default: jsonld_for_seo_object.excerpt_or_content | strip_html | truncatewords: 120 | escape | json }},
+  "author": {{ jsonld_for_seo_object.metafields.jsonld.author | default: jsonld_for_seo_object.author | json }},
+  "image": {{ jsonld_for_seo_object.metafields.jsonld.image | default: jsonld_for_seo_default_image | json }}
+}
+</script>{% endunless %}{% endunless %}{% assign jsonld_for_seo_applied = true %}
