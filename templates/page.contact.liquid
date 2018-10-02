@@ -1,17 +1,16 @@
-{% assign header_title = page.title %}
-{% include 'page_header' with header_title %}
+<!-- /templates/page.contact.liquid -->
 
-<div class="wrapper wrapper--margins">
+<div class="page-width page-container">
+  <header>
+    <h1>{{ page.title }}</h1>
+  </header>
 
-  <div class="rte">
+  <div class="rte rte--indented-images">
     {{ page.content }}
   </div>
 
-  <div class="contact-form">
-
+  <div class="contact-form form-vertical">
     {% form 'contact' %}
-
-      <h2 class="home-section-title less-margin">{{ 'contact.form.title' | t }}</h2>
 
       {% if form.posted_successfully? %}
         <p class="note form-success">
@@ -21,38 +20,30 @@
 
       {{ form.errors | default_errors }}
 
-      <div class="form__row">
-
-        <div class="form__column third">
-          {% assign name_attr = 'contact.form.name' | t | handle %}
-          <label for="ContactFormName">{{ 'contact.form.name' | t }}</label>
-          <input type="text" id="ContactFormName" class="input-full" name="contact[{{ name_attr }}]" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.name }}{% endif %}">
+      <div class="grid">
+        <div class="grid__item medium-up--one-half">
+          <label for="ContactFormName" class="label--hidden">{{ 'contact.form.name' | t }}</label>
+          <input type="text" id="ContactFormName" name="contact[name]" placeholder="{{ 'contact.form.name' | t }}" value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}" class="input-full">
         </div>
 
-        <div class="form__column third">
-          <label for="ContactFormEmail">{{ 'contact.form.email' | t }}</label>
-          <input type="email" id="ContactFormEmail" class="input-full" name="contact[email]" autocorrect="off" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+        <div class="contact-form__email grid__item medium-up--one-half">
+          <label for="ContactFormEmail" class="label--hidden">{{ 'contact.form.email' | t }}</label>
+          <input type="email" id="ContactFormEmail" name="contact[email]" placeholder="{{ 'contact.form.email' | t }}" autocorrect="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}" class="input-full">
         </div>
 
-        <div class="form__column third">
-          {% assign name_attr = 'contact.form.phone' | t | handle %}
-          <label for="ContactFormPhone">{{ 'contact.form.phone' | t }}</label>
-          <input type="tel" id="ContactFormPhone" class="input-full" name="contact[{{ name_attr }}]" pattern="[0-9\-]*" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.phone }}{% endif %}">
+        <div class="grid__item">
+          <label for="ContactFormPhone" class="label--hidden">{{ 'contact.form.phone' | t }}</label>
+          <input type="tel" id="ContactFormPhone" name="contact[phone]" placeholder="{{ 'contact.form.phone' | t }}" pattern="[0-9\-]*" value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}" class="input-full">
         </div>
 
-      </div>
-
-      <div class="form__row">
-        <div class="form__column full">
-          <label for="ContactFormMessage">{{ 'contact.form.message' | t }}</label>
-          <textarea rows="10" id="ContactFormMessage" class="input-full" name="contact[body]">{% if form.body %}{{ form.body }}{% endif %}</textarea>
+        <div class="grid__item">
+          <label for="ContactFormMessage" class="label--hidden">{{ 'contact.form.message' | t }}</label>
+          <textarea id="ContactFormMessage" name="contact[body]" placeholder="{{ 'contact.form.message' | t }}" class="input-full">{% if form.body %}{{ form.body }}{% endif %}</textarea>
         </div>
       </div>
 
-      <input type="submit" class="btn btn--regular btn--color btn--fill" value="{{ 'contact.form.send' | t }}">
+      <input type="submit" class="btn" value="{{ 'contact.form.send' | t }}">
 
     {% endform %}
-
   </div>
-
 </div>
