@@ -1785,7 +1785,7 @@ reqJquery(function($){
     };
     var template = baHandlebars.compile(source);
     var html = template(context);
-    $('div.ba-bundle-wrapper').append(html);
+    $('div.ba-bundle-wrapper').append(html.replace(/undefined/g, ' '));
     var bundle = $('div.ba-bundle-wrapper .ba-product-bundle').last();
     var maxHeight = 0;
     $(bundle).find("div.bundle-name").each(function(i,bn){
@@ -2596,7 +2596,8 @@ reqJquery(function($){
 
   function hideUpsell(offerId){
     var currentSkipIds = getCookie('ba-skip-ids');
-    var allSkipIds = currentSkipIds + ',' + offerId;
+    if (currentSkipIds && currentSkipIds !='') currentSkipIds += ','
+    var allSkipIds = currentSkipIds + offerId;
     
       setCookie('ba-skip-ids', allSkipIds, 14);
     
