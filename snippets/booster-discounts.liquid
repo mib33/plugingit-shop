@@ -2613,7 +2613,7 @@ reqJquery(function($){
 
   $(document).on('click', "button#apply-booster-discount", function(e) {
     e.preventDefault();
-    setCookie('booster_discount_' + window.booster.cart.token, $('#booster-discount-code').val().trim())
+    setCookie('booster_discount_' + window.booster.cart.token, $('input[id=booster-discount-code]:visible').val().trim())
     window.location.reload();
   });
 
