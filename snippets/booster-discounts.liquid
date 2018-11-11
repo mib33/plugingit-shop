@@ -2495,6 +2495,9 @@ reqJquery(function($){
     }
   }
 
+  //Get offer test token to enable testing
+  window.booster.ba_test_offer_token = getUrlParam('ba_test_offer_token');
+
   if(window.booster.ba_page.length > 0){
     $.ajax({
       cache: false,
