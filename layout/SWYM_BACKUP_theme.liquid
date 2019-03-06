@@ -1,11 +1,4 @@
-{%- comment -%}
-  The HTML of this shop is minified by Plug in Speed.
-  You can edit your file as normal inside the "capture minified" tags.
-  You can disable HTML minification through your entire shop by changing
-	useMinification to false in the file snippets/plug-in-speed.liquid
-{%- endcomment -%}
-{%- capture minified -%}
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
 <!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
 <!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
@@ -61,19 +54,22 @@
     {% comment pluginspeed replaced-js DON'T CHANGE %}{{ 'app.js' | asset_url | script_tag }}{% endcomment %}{%- include 'pluginspeed-minify-asset', asset: 'app.js', tag: 'script', liquid_tag: true -%}
     {% if settings.product_slideshow_animation == 'zoom' %}{% comment pluginspeed replaced-js DON'T CHANGE %}{{ "cloudzoom.js" | asset_url | script_tag }}{% endcomment %}{%- include 'pluginspeed-minify-asset', asset: 'cloudzoom.js', tag: 'script', liquid_tag: true -%}{% endif %}
     {{ 'option_selection.js' | shopify_asset_url | script_tag }}        
-    {{ content_for_header }}
+    {% include 'buddha-megamenu-before' %}
+  {% include 'buddha-megamenu' %}
+  {{ content_for_header }}
     
     {% if product.metafields.inventory.ShappifyHidden == "true" %} <meta name="robots" content="noindex"> {% endif %}
   
 
 
 <!-- BeginConsistentCartAddon --><script>{% if customer %}Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;Shopify.customer_logged_in = true ; Shopify.customer_email = "{{ customer.email }}" ;Shopify.log_uuids = true;{% else %}Shopify.customer_logged_in = false ; Shopify.customer_email = "" ;Shopify.log_uuids = true;{% endif %}</script><!-- EndConsistentCartAddon -->
-</head>
+  </head>
   
 {% if page.url  contains "home" %}
 <script>window.location.href = 'https://www.gardspo.com/';</script>
 {% endif %}
   <body class="{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}">
+  {% include 'buddha-megamenu-wireframe' %}
 {% capture the_snippet_content %}{% include 'socialshopwave-helper' %}{% endcapture %}
             {% unless the_snippet_content contains 'Liquid error' %}
               {{ the_snippet_content }}
@@ -518,8 +514,11 @@
 
 <!-- BEEKETINGSCRIPT CODE START -->{% include 'bk-tracking' %}<!-- BEEKETINGSCRIPT CODE END --><!-- This line added automatically by JSON-LD for SEO. -->{% include 'jsonld-for-seo' %}
 <!-- This line added automatically by JSON-LD for SEO. -->{% include 'jsonld-for-seo' %}
-{% include 'booster-discounts' %}
-</body>
+
+{% include 'swymSnippet' %}
+
+
+          {% include 'booster-discounts' %}
+        
+  </body>
 </html>
-{%- endcapture minified -%}
-{%- include 'plug-in-speed', minified: minified -%}
